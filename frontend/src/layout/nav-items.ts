@@ -89,6 +89,12 @@ export function menuSectionsFor(user: ApiUser | null): MenuSection[] {
           visible: isSuperuser,
         },
         {
+          href: '/admin/settlement',
+          label: 'Acerto de contas',
+          icon: 'scale-balanced',
+          visible: isSuperuser,
+        },
+        {
           href: '/admin/users',
           label: 'Usuários',
           icon: 'users',

@@ -31,6 +31,11 @@ export function formatHours(value: number): string {
   return `${formatDecimal(value)} h`
 }
 
+/** Moeda: `1234.5` → `R$ 1.234,50`. */
+export function formatCurrency(value: number): string {
+  return `${value < 0 ? '-' : ''}R$ ${formatDecimal(Math.abs(value))}`
+}
+
 /** Percentual inteiro, para rótulos de participação. */
 export function formatPercent(part: number, total: number): string {
   if (total <= 0) return '0%'

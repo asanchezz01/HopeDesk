@@ -59,6 +59,14 @@ const AREAS: AdminArea[] = [
     icon: 'credit-card',
     tone: 'success',
   },
+  {
+    href: '/admin/settlement',
+    title: 'Acerto de contas',
+    description: 'Divisão do faturamento do mês entre os técnicos.',
+    superuserOnly: true,
+    icon: 'scale-balanced',
+    tone: 'primary',
+  },
 ]
 
 export default function AdminHome() {

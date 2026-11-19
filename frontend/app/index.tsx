@@ -52,7 +52,9 @@ export default function TicketsScreen() {
     return { currentYear: now.getFullYear(), currentMonth: now.getMonth() + 1 }
   })
 
-  const [year, setYear] = useState<number>(currentYear)
+  // Abre sem recorte de data ("Todo o período"); o mês corrente fica pronto
+  // para quando o usuário escolher um ano.
+  const [year, setYear] = useState<number>(ALL_PERIODS)
   const [month, setMonth] = useState<number>(currentMonth)
   const [status, setStatus] = useState<TicketStatusFilter>('nao_concluidos')
   const [search, setSearch] = useState('')

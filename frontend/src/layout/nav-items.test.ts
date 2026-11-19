@@ -53,6 +53,7 @@ describe('menuItemsFor', () => {
       'Parâmetros da empresa',
       'Módulos do sistema',
       'Pagamentos',
+      'Acerto de contas',
       'Usuários',
       'Trocar senha',
     ])
