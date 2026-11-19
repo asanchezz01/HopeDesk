@@ -304,12 +304,15 @@ function Term({
   swatch?: string
 }) {
   const theme = useTheme()
+  const { isMobile } = useBreakpoint()
   return (
     <View
       accessible
       accessibilityLabel={`${label}: ${value}${detail ? ` (${detail})` : ''}`}
       style={[
         styles.term,
+        // Empilhada em coluna, a base de 150 viraria ALTURA (ver `StatTile`).
+        isMobile && styles.termStacked,
         emphasis && { backgroundColor: theme.primarySoft, borderRadius: Radius.lg },
       ]}
     >
@@ -334,8 +337,13 @@ function Term({
 
 function Operator({ icon }: { icon: 'minus' | 'plus' | 'equals' }) {
   const theme = useTheme()
+  const { isMobile } = useBreakpoint()
   return (
-    <View style={styles.operator} importantForAccessibility="no" accessibilityElementsHidden>
+    <View
+      style={[styles.operator, isMobile && styles.operatorStacked]}
+      importantForAccessibility="no"
+      accessibilityElementsHidden
+    >
       <FontAwesome6 name={icon} size={14} color={theme.muted} />
     </View>
   )
@@ -368,6 +376,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, marginTop: 16 },
   term: { flexGrow: 1, flexBasis: 150, gap: 2, paddingVertical: 10, paddingHorizontal: 12 },
   termLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  termStacked: { flexBasis: 'auto', flexGrow: 0 },
   termValue: { fontSize: 22, fontWeight: '700', lineHeight: 28, fontVariant: ['tabular-nums'] },
   termValueEmphasis: {
     fontSize: 26,
@@ -376,6 +385,7 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   operator: { width: 24, alignItems: 'center', alignSelf: 'center' },
+  operatorStacked: { alignSelf: 'flex-start', marginLeft: 6 },
   splitHeader: { gap: 8, marginBottom: 4 },
   legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 4 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
