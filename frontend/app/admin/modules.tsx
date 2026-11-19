@@ -169,7 +169,7 @@ export default function AdminModules() {
                 />
                 <Button
                   title="Excluir"
-                  variant="danger"
+                  variant="dangerSoft"
                   icon="trash"
                   onPress={() => setToDelete(item)}
                 />

@@ -11,6 +11,7 @@ import InsightBanner from '../src/components/InsightBanner'
 import Select from '../src/components/Select'
 import Skeleton from '../src/components/Skeleton'
 import StatTile from '../src/components/StatTile'
+import StatusBadge from '../src/components/StatusBadge'
 import ComboTimeSeries, { type SeriesPoint } from '../src/components/charts/ComboTimeSeries'
 import DonutChart from '../src/components/charts/DonutChart'
 import { useAuth } from '../src/context/AuthProvider'
@@ -602,15 +603,9 @@ function Dashboard({
                 onPress={() => onOpenTicket(ticket.id)}
                 style={[styles.ticketRow, { borderTopColor: theme.border }]}
               >
-                <View
-                  style={[
-                    styles.ticketMark,
-                    { backgroundColor: statusChartColor(ticket.status, isDark) },
-                  ]}
-                />
                 <View style={styles.ticketMain}>
                   <Text style={[styles.ticketId, { color: theme.muted }]}>
-                    #{ticket.id} · {ticket.createdLabel} · {ticket.statusLabel}
+                    #{ticket.id} · {ticket.createdLabel}
                   </Text>
                   <Text
                     numberOfLines={2}
@@ -625,9 +620,14 @@ function Dashboard({
                     {ticket.client} · {ticket.module} · {ticket.technician}
                   </Text>
                 </View>
-                <Text style={[styles.ticketHours, { color: theme.textPrimary }]}>
-                  {formatDecimal(ticket.hours)} h
-                </Text>
+                {/* O status vai no mesmo badge da listagem de chamados, em vez
+                    da barrinha colorida: cor E rótulo, no mesmo lugar. */}
+                <View style={styles.ticketAside}>
+                  <StatusBadge status={ticket.status} label={ticket.statusLabel} />
+                  <Text style={[styles.ticketHours, { color: theme.textPrimary }]}>
+                    {formatDecimal(ticket.hours)} h
+                  </Text>
+                </View>
               </Pressable>
             ))}
 
@@ -697,9 +697,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
   },
-  // Marca de situação: a cor acompanha o rótulo em texto na linha acima, nunca
-  // sozinha — é a compensação obrigatória do contraste baixo do amarelo.
-  ticketMark: { width: 4, alignSelf: 'stretch', borderRadius: 2 },
+  ticketAside: { alignItems: 'flex-end', gap: 6 },
   ticketMain: { flex: 1, gap: 2 },
   ticketId: { fontSize: 12 },
   ticketTitle: { fontSize: 15, fontWeight: '600' },

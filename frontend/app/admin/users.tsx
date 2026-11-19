@@ -277,7 +277,7 @@ export default function AdminUsers() {
                 {item.id !== user?.id && (
                   <Button
                     title="Excluir"
-                    variant="danger"
+                    variant="dangerSoft"
                     icon="trash"
                     onPress={() => setToDelete(item)}
                   />

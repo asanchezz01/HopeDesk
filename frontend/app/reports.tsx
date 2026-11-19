@@ -26,8 +26,7 @@ import { statusKeyFromRaw } from '../src/domain/ticket-status'
 import { useActivityReport, useReportPdf, useServicesReport } from '../src/hooks/useReports'
 import AppShell from '../src/layout/AppShell'
 import { useBreakpoint } from '../src/layout/useBreakpoint'
-import { useIsDark, useTheme } from '../src/theme/ThemeContext'
-import { statusChartColor } from '../src/theme/chart-palette'
+import { useTheme } from '../src/theme/ThemeContext'
 
 type Tab = 'activities' | 'services'
 
@@ -231,18 +230,17 @@ type ActivityQuery = ReturnType<typeof useActivityReport>
 
 function ActivityReportView({ report }: { report: ActivityQuery }) {
   const theme = useTheme()
-  const isDark = useIsDark()
 
   if (report.isError && !report.data) {
     return (
-      <Card accent={theme.danger}>
+      <Card>
         <ErrorState error={report.error} onRetry={() => void report.refetch()} />
       </Card>
     )
   }
   if (!report.data) {
     return (
-      <Card accent={theme.chartMagnitude}>
+      <Card>
         <Skeleton height={120} radius={12} />
       </Card>
     )
@@ -252,24 +250,22 @@ function ActivityReportView({ report }: { report: ActivityQuery }) {
 
   return (
     <>
-      <Card accent={theme.chartMagnitude}>
-        <View style={styles.tiles}>
-          <StatTile
-            label="Total de horas"
-            value={formatHours(data.totalHours)}
-            hint={`${data.periodStartLabel} a ${data.periodEndLabel}`}
-            accent={theme.chartMagnitude}
-          />
-          <StatTile
-            label="Chamados"
-            value={String(data.tickets.length)}
-            accent={theme.chartSecondary}
-          />
-        </View>
-      </Card>
+      <View style={styles.tiles}>
+        <StatTile
+          label="Total de horas"
+          value={formatHours(data.totalHours)}
+          hint={`${data.periodStartLabel} a ${data.periodEndLabel}`}
+          accent={theme.chartMagnitude}
+        />
+        <StatTile
+          label="Chamados"
+          value={String(data.tickets.length)}
+          accent={theme.chartSecondary}
+        />
+      </View>
 
       {data.totalsByTechnician.length > 0 && (
-        <Card accent={theme.chartMagnitude}>
+        <Card>
           <Text
             accessibilityRole="header"
             style={[styles.sectionTitle, { color: theme.textPrimary }]}
@@ -288,7 +284,7 @@ function ActivityReportView({ report }: { report: ActivityQuery }) {
       )}
 
       {data.tickets.length === 0 ? (
-        <Card accent={theme.muted}>
+        <Card>
           <EmptyState
             title="Nenhuma atividade no período"
             description="Ajuste o intervalo de datas para ver os lançamentos."
@@ -296,17 +292,11 @@ function ActivityReportView({ report }: { report: ActivityQuery }) {
         </Card>
       ) : (
         data.tickets.map((ticket) => {
-          // O card é pintado por status — a leitura rápida da fila. Como a cor
-          // não pode ser a ÚNICA portadora do estado, o `StatusBadge` repete o
-          // rótulo ao lado da faixa (a cor é atalho, não definição).
-          // `StatusBadge` e `statusChartColor` esperam a CHAVE, mas o
-          // relatório devolve o rótulo: `statusKeyFromRaw` normaliza.
+          // `StatusBadge` espera a CHAVE, mas o relatório devolve o rótulo:
+          // `statusKeyFromRaw` normaliza.
           const statusKey = statusKeyFromRaw(ticket.status)
-          const statusAccent = statusKey
-            ? statusChartColor(statusKey, isDark)
-            : theme.chartSecondary
           return (
-            <Card key={ticket.ticketId} accent={statusAccent}>
+            <Card key={ticket.ticketId}>
               <View style={styles.ticketHeader}>
                 <Text style={[styles.ticketTitle, { color: theme.textPrimary }]}>
                   #{ticket.ticketId} · {ticket.title}
@@ -345,14 +335,14 @@ function ServicesReportView({ report }: { report: ServicesQuery }) {
 
   if (report.isError && !report.data) {
     return (
-      <Card accent={theme.danger}>
+      <Card>
         <ErrorState error={report.error} onRetry={() => void report.refetch()} />
       </Card>
     )
   }
   if (!report.data) {
     return (
-      <Card accent={theme.chartMagnitude}>
+      <Card>
         <Skeleton height={120} radius={12} />
       </Card>
     )
@@ -362,23 +352,21 @@ function ServicesReportView({ report }: { report: ServicesQuery }) {
 
   return (
     <>
-      <Card accent={theme.chartMagnitude}>
-        <View style={styles.tiles}>
-          <StatTile
-            label="Total de horas"
-            value={formatHours(data.totalHours)}
-            hint={data.periodLabel}
-            accent={theme.chartMagnitude}
-          />
-          <StatTile
-            label="Lançamentos"
-            value={String(data.rows.length)}
-            accent={theme.chartSecondary}
-          />
-        </View>
-      </Card>
+      <View style={styles.tiles}>
+        <StatTile
+          label="Total de horas"
+          value={formatHours(data.totalHours)}
+          hint={data.periodLabel}
+          accent={theme.chartMagnitude}
+        />
+        <StatTile
+          label="Lançamentos"
+          value={String(data.rows.length)}
+          accent={theme.chartSecondary}
+        />
+      </View>
 
-      <Card accent={theme.chartSecondary}>
+      <Card>
         {data.rows.length === 0 ? (
           <EmptyState
             title="Sem lançamentos no mês"

@@ -5,8 +5,7 @@ import type { StyleProp, ViewStyle } from 'react-native'
 import type { Ticket } from '../../api/tickets'
 import { formatHours } from '../../domain/format'
 import { formatInstantLabel } from '../../domain/wall-clock'
-import { useIsDark, useTheme } from '../../theme/ThemeContext'
-import { statusChartColor } from '../../theme/chart-palette'
+import { useTheme } from '../../theme/ThemeContext'
 import StatusBadge from '../StatusBadge'
 
 interface TicketCardProps {
@@ -20,10 +19,6 @@ interface TicketCardProps {
 
 export default function TicketCard({ ticket, onPress, showClient = true, style }: TicketCardProps) {
   const theme = useTheme()
-  const isDark = useIsDark()
-  // A cor da aresta esquerda é a do status: a lista se lê por cor antes do
-  // texto, e a mesma paleta que já pinta o badge e o painel.
-  const statusColor = statusChartColor(ticket.status, isDark)
 
   return (
     <Pressable
@@ -31,15 +26,14 @@ export default function TicketCard({ ticket, onPress, showClient = true, style }
       accessibilityLabel={`Chamado ${ticket.id}: ${ticket.title}. ${ticket.statusLabel}.`}
       accessibilityHint="Abre o detalhe do chamado"
       onPress={onPress}
-      style={({ pressed }) => [
+      // O status fica no badge (cor + rótulo). A faixa grossa na aresta, que
+      // repetia a mesma cor, transformava a grade numa régua de listras.
+      style={(state) => [
         styles.card,
-        {
-          backgroundColor: theme.cardBg,
-          borderColor: theme.border,
-          borderLeftWidth: 4,
-          borderLeftColor: statusColor,
-        },
-        pressed && styles.pressed,
+        { backgroundColor: theme.cardBg, borderColor: theme.border },
+        // `hovered` só existe no react-native-web.
+        (state as { hovered?: boolean }).hovered && { borderColor: theme.muted },
+        state.pressed && styles.pressed,
         style,
       ]}
     >
@@ -52,21 +46,20 @@ export default function TicketCard({ ticket, onPress, showClient = true, style }
         {ticket.title}
       </Text>
 
-      <View style={styles.meta}>
-        {showClient && (
-          <Text style={[styles.metaItem, { color: theme.textSecondary }]} numberOfLines={1}>
-            {ticket.client.name}
-          </Text>
-        )}
-        {ticket.systemModule && (
-          <Text style={[styles.metaItem, { color: theme.textSecondary }]} numberOfLines={1}>
-            {ticket.systemModule.name}
-            {/* Módulo desativado continua ligado a chamados antigos, que seguem
-                editáveis — sinalizar evita a impressão de dado inconsistente. */}
-            {!ticket.systemModule.isActive && ' (inativo)'}
-          </Text>
-        )}
-      </View>
+      {/* Mesmo separador " · " do painel e dos relatórios: só o espaço entre
+          cliente e módulo fazia os dois nomes parecerem um só. */}
+      <Text style={[styles.metaItem, { color: theme.textSecondary }]} numberOfLines={1}>
+        {[
+          showClient ? ticket.client.name : null,
+          ticket.systemModule
+            ? // Módulo desativado continua ligado a chamados antigos, que seguem
+              // editáveis — sinalizar evita a impressão de dado inconsistente.
+              `${ticket.systemModule.name}${ticket.systemModule.isActive ? '' : ' (inativo)'}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
+      </Text>
 
       <View style={styles.footer}>
         <Text style={[styles.footerItem, { color: theme.muted }]}>
@@ -93,7 +86,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   id: { fontSize: 12, fontWeight: '700' },
   title: { fontSize: 15, fontWeight: '600', lineHeight: 20 },
-  meta: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   metaItem: { fontSize: 13 },
   footer: {
     flexDirection: 'row',

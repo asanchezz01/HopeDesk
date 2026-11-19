@@ -174,7 +174,8 @@ export class ReportsService {
           assignedTechnician: ticket.technician?.name ?? '-',
           moduleName: ticket.systemModule?.name ?? '-',
           createdAt: ticket.createdAt.toISOString(),
-          createdLabel: formatWallClockPtBr(ticket.createdAt),
+          // `created_at` é instante UTC: converte para a parede antes de formatar.
+          createdLabel: formatWallClockPtBr(instantToWallClockStorage(ticket.createdAt)),
           totalHours: 0,
           activities: [],
         };

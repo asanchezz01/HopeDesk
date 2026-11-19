@@ -6,7 +6,12 @@ import type { ViewStyle } from 'react-native'
 import { useIsDark, useTheme } from '../../theme/ThemeContext'
 import { Radius, Shadows, Typography } from '../../theme/tokens'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger'
+/**
+ * `danger` é a confirmação de uma ação destrutiva (no diálogo). `dangerSoft` é
+ * o GATILHO dela numa lista ou ficha: vermelho de texto sobre fundo tênue, para
+ * que um "Excluir" por linha não grite mais alto que a ação principal da tela.
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'dangerSoft'
 
 interface ButtonProps {
   title: string
@@ -65,7 +70,23 @@ export default function Button({
       borderColor: theme.primary,
       textColor: theme.primary,
     },
+    dangerSoft: {
+      background: theme.dangerSoft,
+      borderColor: theme.dangerSoft,
+      textColor: theme.danger,
+    },
   }[variant]
+
+  // Hover (só no react-native-web): os preenchidos escurecem um pouco; os de
+  // contorno ganham o fundo tênue do mesmo papel.
+  const hoverStyle: ViewStyle =
+    variant === 'secondary'
+      ? { backgroundColor: theme.surfaceMuted }
+      : variant === 'outline'
+        ? { backgroundColor: theme.primarySoft }
+        : variant === 'dangerSoft'
+          ? { borderColor: theme.danger }
+          : { opacity: 0.9 }
 
   // A sombra verde sob a acao primaria e do padrao da retaguarda, e so no tema
   // claro: sobre a noite ela some visualmente e ainda suja a borda do botao.
@@ -82,11 +103,12 @@ export default function Button({
       accessibilityState={{ disabled: inactive, busy: loading }}
       onPress={onPress}
       disabled={inactive}
-      style={({ pressed }) => [
+      style={(state) => [
         styles.button,
         shape,
         full && styles.full,
-        pressed && !inactive && styles.pressed,
+        (state as { hovered?: boolean }).hovered && !inactive && hoverStyle,
+        state.pressed && !inactive && styles.pressed,
         inactive && styles.inactive,
       ]}
     >

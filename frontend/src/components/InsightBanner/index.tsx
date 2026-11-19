@@ -32,10 +32,7 @@ export default function InsightBanner({ insights }: InsightBannerProps) {
           <View
             key={insight.id}
             accessibilityRole="text"
-            style={[
-              styles.item,
-              { backgroundColor: theme.cardBg, borderColor: theme.border, borderLeftColor: tint },
-            ]}
+            style={[styles.item, { backgroundColor: theme.cardBg, borderColor: theme.border }]}
           >
             <View style={[styles.icon, { backgroundColor: tint }]}>
               <Text style={[styles.iconGlyph, { color: theme.onAccentText }]}>{insight.icon}</Text>
@@ -71,7 +68,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderLeftWidth: 4,
     borderRadius: 10,
   },
   icon: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },

@@ -166,7 +166,9 @@ export class AnalyticsService {
         ),
         bucket: bucketOf(ticket.createdAt, period.bucketMode),
         createdAt: ticket.createdAt.toISOString(),
-        createdLabel: formatDateTimeLabel(ticket.createdAt),
+        // `created_at` é instante UTC; o rótulo é lido na parede de São Paulo,
+        // como na listagem e no detalhe do chamado.
+        createdLabel: formatDateTimeLabel(instantToWallClockStorage(ticket.createdAt)),
         hours: round2(totalHours),
         responseHours: firstActivity
           ? round2(

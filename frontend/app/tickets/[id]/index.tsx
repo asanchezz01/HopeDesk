@@ -221,7 +221,7 @@ export default function TicketDetail() {
             {canDelete && (
               <Button
                 title="Excluir"
-                variant="danger"
+                variant="dangerSoft"
                 icon="trash"
                 onPress={() => setConfirmDeleteTicket(true)}
               />
@@ -306,7 +306,7 @@ export default function TicketDetail() {
                     {item.activity.canDelete && (
                       <Button
                         title="Excluir"
-                        variant="danger"
+                        variant="dangerSoft"
                         icon="trash"
                         onPress={() => setActivityToDelete(item.activity)}
                       />

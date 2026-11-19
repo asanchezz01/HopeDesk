@@ -231,7 +231,7 @@ export default function AdminPayments() {
               </View>
               <Button
                 title="Excluir"
-                variant="danger"
+                variant="dangerSoft"
                 icon="trash"
                 onPress={() => setToDelete(item)}
               />

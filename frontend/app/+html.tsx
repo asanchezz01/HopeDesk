@@ -35,6 +35,12 @@ const ESTILO = `
   @media (prefers-color-scheme: dark) {
     body { background-color: var(--hope-noite); }
   }
+  /* Superfícies que o navegador desenha sozinho, no verde da marca: foco de
+     teclado (botões, seletores, links), seleção de texto e cursor. O degrau
+     brand-600 passa de 3:1 contra o papel e contra a noite. */
+  :focus-visible { outline: 2px solid #12a271; outline-offset: 2px; }
+  ::selection { background-color: rgb(18 162 113 / 0.28); }
+  input, textarea { caret-color: #12a271; }
   /* A retaguarda é feita de listas longas; a barra discreta é a do padrão. */
   @media (min-width: 768px) {
     * { scrollbar-width: thin; scrollbar-color: rgb(139 160 180 / 0.45) transparent; }

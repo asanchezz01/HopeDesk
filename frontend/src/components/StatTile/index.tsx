@@ -62,13 +62,15 @@ export default function StatTile({
         style,
       ]}
     >
-      {/* Faixa de acento na aresta, como no painel antigo: identifica o grupo
-          sem colorir texto nem competir com o número. */}
-      <View style={[styles.accent, { backgroundColor: accent ?? theme.border }]} />
-
-      <Text numberOfLines={2} style={[styles.label, { color: theme.muted }]}>
-        {label}
-      </Text>
+      {/* O grupo se marca por um ponto ao lado do rótulo: identifica o assunto
+          sem colorir texto nem competir com o número. A antiga faixa grossa na
+          aresta esquerda pesava mais que o próprio indicador. */}
+      <View style={styles.labelRow}>
+        {accent && <View style={[styles.dot, { backgroundColor: accent }]} />}
+        <Text numberOfLines={2} style={[styles.label, { color: theme.muted }]}>
+          {label}
+        </Text>
+      </View>
       {/* O número usa cor de TEXTO, não a cor da série: identidade fica com a
           marca colorida ao lado, nunca com o texto. Figuras proporcionais, não
           tabulares — num número grande e isolado o dígito de largura fixa
@@ -91,15 +93,21 @@ const styles = StyleSheet.create({
     flexBasis: 150,
     gap: 3,
     paddingVertical: 14,
-    paddingLeft: 17,
-    paddingRight: 14,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderRadius: Radius.xl,
-    overflow: 'hidden',
   },
   tileHero: { flexBasis: 230 },
-  accent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4 },
-  label: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  // Alinhado à primeira linha do rótulo, mesmo quando ele quebra em duas.
+  dot: { width: 8, height: 8, borderRadius: 4, alignSelf: 'flex-start', marginTop: 3 },
+  label: {
+    flexShrink: 1,
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   value: { fontSize: 24, fontWeight: '700', lineHeight: 30 },
   valueHero: { fontSize: 40, fontWeight: '700', lineHeight: 46, letterSpacing: -0.5 },
   hint: { fontSize: 12, lineHeight: 16 },

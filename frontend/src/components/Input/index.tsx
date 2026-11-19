@@ -1,5 +1,5 @@
-import React, { useId } from 'react'
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import React, { useId, useState } from 'react'
+import { Platform, StyleSheet, Text, TextInput, View } from 'react-native'
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native'
 
 import { useTheme } from '../../theme/ThemeContext'
@@ -49,6 +49,7 @@ export default function Input({
 }: InputProps) {
   const theme = useTheme()
   const describedBy = useId()
+  const [focused, setFocused] = useState(false)
 
   return (
     <View style={styles.container}>
@@ -71,9 +72,12 @@ export default function Input({
           styles.input,
           {
             backgroundColor: theme.cardBg,
-            borderColor: error ? theme.danger : theme.border,
+            borderColor: error ? theme.danger : focused ? theme.primary : theme.border,
             color: theme.textPrimary,
           },
+          // O contorno padrão do navegador (branco, retangular) ignorava o raio
+          // e o tema; o foco agora é a borda na cor da ação mais um halo tênue.
+          focused && webFocusRing(error ? theme.dangerSoft : theme.primarySoft),
           multiline && { minHeight: 24 * rows, textAlignVertical: 'top' },
           disabled && styles.disabled,
         ]}
@@ -89,6 +93,8 @@ export default function Input({
         autoComplete={autoComplete}
         textContentType={textContentType}
         editable={!disabled}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}
       />
@@ -104,6 +110,11 @@ export default function Input({
   )
 }
 
+/** Halo de foco no web; no nativo a borda colorida basta. */
+function webFocusRing(color: string) {
+  return Platform.OS === 'web' ? ({ boxShadow: `0 0 0 3px ${color}` } as object) : null
+}
+
 const styles = StyleSheet.create({
   container: { marginBottom: 16 },
   label: { ...Typography.label, marginBottom: 6 },
@@ -115,6 +126,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 15,
+    // O foco é desenhado pela borda e pelo halo (ver `webFocusRing`).
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null),
   },
   disabled: { opacity: 0.6 },
   error: { marginTop: 6, fontSize: 12, fontWeight: '600' },

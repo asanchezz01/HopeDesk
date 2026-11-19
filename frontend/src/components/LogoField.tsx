@@ -95,7 +95,7 @@ export default function LogoField({
           {hasLogo && onRemove && (
             <Button
               title="Tirar logo"
-              variant="danger"
+              variant="dangerSoft"
               accessibilityLabel="Remover logo da empresa"
               loading={removeBusy}
               disabled={removeBusy}

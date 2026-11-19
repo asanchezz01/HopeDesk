@@ -9,28 +9,26 @@ interface CardProps {
   children: React.ReactNode
   style?: StyleProp<ViewStyle>
   padding?: boolean
-  /**
-   * Cor da faixa de acento na aresta esquerda — a mesma regra do `StatTile`.
-   * É orientação de leitura (identifica o papel do bloco na tela), nunca a
-   * única portadora de significado: quando ela carrega um estado (status), o
-   * rótulo acompanha, como no `StatusBadge`.
-   */
-  accent?: string
 }
 
-export default function Card({ children, style, padding = true, accent }: CardProps) {
+/**
+ * Superfície padrão de bloco.
+ *
+ * Já teve uma faixa colorida de 4px na aresta esquerda (`accent`). Saiu: em
+ * telas com muitos cartões a régua de cores competia com o conteúdo, e o papel
+ * de cada bloco já está no título e no `StatusBadge`.
+ */
+export default function Card({ children, style, padding = true }: CardProps) {
   const theme = useTheme()
   return (
     <View
       style={[
         styles.card,
         { backgroundColor: theme.cardBg, borderColor: theme.border },
-        accent && styles.cardAccent,
         padding && styles.padded,
         style,
       ]}
     >
-      {accent ? <View style={[styles.accent, { backgroundColor: accent }]} /> : null}
       {children}
     </View>
   )
@@ -46,10 +44,5 @@ const styles = StyleSheet.create({
     // tingida de azul-noite, nunca de preto puro.
     ...Shadows.card,
   },
-  // Só quando há acento: a faixa é posicionada na aresta e precisa ser
-  // recortada pelo raio do cartão. Condiciona-se para não alterar o render dos
-  // demais cards, que ainda dependem de conteúdo absoluto no card.
-  cardAccent: { overflow: 'hidden' },
-  accent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4 },
   padded: { padding: 20 },
 })
