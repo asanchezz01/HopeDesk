@@ -1,3 +1,4 @@
+import { FontAwesome6 } from '@expo/vector-icons'
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import type { StyleProp, ViewStyle } from 'react-native'
@@ -28,6 +29,18 @@ interface StatTileProps {
    * `{ flexBasis: 'auto' }` por aqui.
    */
   style?: StyleProp<ViewStyle>
+  /**
+   * Sem superfície própria (fundo, borda, sombra): o quadro mora dentro de uma
+   * faixa de totais que já é a superfície. Assim os totais não se confundem com
+   * cartões clicáveis da mesma tela.
+   */
+  flat?: boolean
+  /**
+   * Glyph do FontAwesome6 num quadrado tingido pela cor de `accent`, à esquerda
+   * do número. Substitui o ponto: marca o quadro como INDICADOR de relance,
+   * distinto dos cartões de conteúdo ao redor. Decorativo para leitores de tela.
+   */
+  icon?: React.ComponentProps<typeof FontAwesome6>['name']
 }
 
 /**
@@ -44,29 +57,19 @@ export default function StatTile({
   hero = false,
   muted = false,
   style,
+  flat = false,
+  icon,
 }: StatTileProps) {
   const theme = useTheme()
+  const tint = accent ?? theme.muted
 
-  return (
-    <View
-      accessibilityRole="summary"
-      accessibilityLabel={`${label}: ${value}${hint ? `. ${hint}` : ''}`}
-      style={[
-        styles.tile,
-        {
-          backgroundColor: muted ? theme.surfaceMuted : theme.cardBg,
-          borderColor: theme.border,
-        },
-        !muted && Shadows.card,
-        hero && styles.tileHero,
-        style,
-      ]}
-    >
-      {/* O grupo se marca por um ponto ao lado do rótulo: identifica o assunto
-          sem colorir texto nem competir com o número. A antiga faixa grossa na
-          aresta esquerda pesava mais que o próprio indicador. */}
+  const body = (
+    <>
+      {/* O grupo se marca por um ponto ao lado do rótulo (ou pelo ícone, quando
+          houver): identifica o assunto sem colorir texto nem competir com o
+          número. A antiga faixa grossa na aresta pesava mais que o indicador. */}
       <View style={styles.labelRow}>
-        {accent && <View style={[styles.dot, { backgroundColor: accent }]} />}
+        {accent && !icon && <View style={[styles.dot, { backgroundColor: accent }]} />}
         <Text numberOfLines={2} style={[styles.label, { color: theme.muted }]}>
           {label}
         </Text>
@@ -83,6 +86,36 @@ export default function StatTile({
           {hint}
         </Text>
       )}
+    </>
+  )
+
+  return (
+    <View
+      accessibilityRole="summary"
+      accessibilityLabel={`${label}: ${value}${hint ? `. ${hint}` : ''}`}
+      style={[
+        styles.tile,
+        {
+          backgroundColor: muted ? theme.surfaceMuted : theme.cardBg,
+          borderColor: theme.border,
+        },
+        !muted && !flat && Shadows.card,
+        flat && styles.tileFlat,
+        hero && styles.tileHero,
+        style,
+      ]}
+    >
+      {icon ? (
+        <View style={styles.withIcon}>
+          {/* `1f` = ~12% de alfa sobre a própria cor; toda cor do tema é #rrggbb. */}
+          <View style={[styles.iconBadge, { backgroundColor: `${tint}1f` }]}>
+            <FontAwesome6 name={icon} size={16} color={tint} />
+          </View>
+          <View style={styles.withIconBody}>{body}</View>
+        </View>
+      ) : (
+        body
+      )}
     </View>
   )
 }
@@ -97,7 +130,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: Radius.xl,
   },
+  tileFlat: { backgroundColor: 'transparent', borderWidth: 0, borderRadius: 0 },
   tileHero: { flexBasis: 230 },
+  withIcon: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  withIconBody: { flex: 1, minWidth: 0, gap: 3 },
+  iconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   // Alinhado à primeira linha do rótulo, mesmo quando ele quebra em duas.
   dot: { width: 8, height: 8, borderRadius: 4, alignSelf: 'flex-start', marginTop: 3 },

@@ -32,6 +32,7 @@ import { useBreakpoint } from '../src/layout/useBreakpoint'
 import { readTicketFilters, saveTicketFilters } from '../src/storage/preferences'
 import { useIsDark, useTheme } from '../src/theme/ThemeContext'
 import { statusChartColor } from '../src/theme/chart-palette'
+import { Radius } from '../src/theme/tokens'
 
 const PAGE_SIZE = 25
 
@@ -258,78 +259,104 @@ export default function TicketsScreen() {
   const monthlyValue = (value: number | undefined) =>
     value === undefined ? (monthlyLoading ? '…' : '—') : formatHours(value)
 
-  // No celular os quadros empilham: sem isto o `flexBasis` do StatTile viraria
-  // ALTURA e cada um ocuparia 150px com metade vazia.
-  const stacked = isMobile ? styles.stackedTile : undefined
+  // Os totais são uma FAIXA, não cartões: superfície recessiva (`surfaceMuted`),
+  // sem sombra, quadros chapados separados por filetes. Os chamados logo abaixo
+  // são cartões brancos, elevados e clicáveis — com as duas formas iguais, a
+  // tela parecia uma grade só e o olho não sabia onde terminavam os números.
+  //
+  // No celular os quadros empilham: sem `flexBasis: 'auto'` a base do StatTile
+  // viraria ALTURA e cada um ocuparia 150px com metade vazia. O filete muda de
+  // lado (esquerda → topo), e a margem negativa da linha esconde o filete do
+  // primeiro quadro de cada fileira atrás da borda da faixa.
+  const stacked = isMobile ? styles.bandTileStacked : styles.bandTile
 
-  // Os quadros ficam soltos, sem um cartão em volta: cartão dentro de cartão
-  // era borda sobre borda, e o total do grid virou um quadro como os outros.
   const summaryCard = (
-    <View style={[styles.summaryRow, !isMobile && styles.summaryRowWide]}>
-      {/* A contagem era uma linha de texto solta acima da lista. Como quadro
+    <View
+      style={[
+        styles.summaryBand,
+        { backgroundColor: theme.surfaceMuted, borderColor: theme.border },
+      ]}
+    >
+      <View style={isMobile ? styles.summaryRowStacked : styles.summaryRowWide}>
+        {/* A contagem era uma linha de texto solta acima da lista. Como quadro
             ela fica ao lado dos outros totais, na mesma tipografia — e é o
             número que responde "achei quantos?" com os filtros de cima. */}
-      <StatTile
-        style={stacked}
-        accent={theme.info}
-        label="Chamados encontrados"
-        value={list.isLoading ? '…' : formatInteger(total)}
-        hint="Com os filtros aplicados"
-      />
-      {!concreteMonth ? (
         <StatTile
+          flat
           style={stacked}
-          accent={theme.chartMagnitude}
-          label="Total de horas do período"
-          value={summary ? formatHours(summary.periodTotalHours) : list.isLoading ? '…' : '—'}
-          hint={lastDays ? `Chamados criados nos últimos ${lastDays} dias` : 'Todo o histórico'}
+          accent={theme.info}
+          label="Chamados encontrados"
+          icon="magnifying-glass"
+          value={list.isLoading ? '…' : formatInteger(total)}
+          hint="Com os filtros aplicados"
         />
-      ) : (
-        <>
+        {!concreteMonth ? (
           <StatTile
+            flat
             style={stacked}
             accent={theme.chartMagnitude}
             label="Total de horas do período"
+            icon="clock"
             value={summary ? formatHours(summary.periodTotalHours) : list.isLoading ? '…' : '—'}
-            hint="Chamados criados no mês"
+            hint={lastDays ? `Chamados criados nos últimos ${lastDays} dias` : 'Todo o histórico'}
           />
-          <StatTile
-            style={stacked}
-            accent={statusChartColor('em_andamento', isDark)}
-            label="Atividades do período em chamados de outros meses"
-            value={monthlyValue(monthlySummary.data?.externalTicketActivityHours)}
-            hint={monthlyLoading ? 'Carregando…' : 'Somente lançamento no mês'}
-          />
-          <StatTile
-            style={stacked}
-            accent={theme.chartSecondary}
-            label="Total de horas do mês"
-            value={
-              summary && monthlySummary.data
-                ? formatHours(
-                    summary.periodTotalHours + monthlySummary.data.externalTicketActivityHours
-                  )
-                : list.isLoading || monthlyLoading
-                  ? '…'
-                  : '—'
-            }
-            hint="Criados no mês + lançados de outros meses"
-          />
-          <StatTile
-            style={stacked}
-            accent={statusChartColor('resolvido', isDark)}
-            label="Horas pagas no período selecionado"
-            value={monthlyValue(monthlySummary.data?.paidHoursInMonth)}
-          />
-        </>
-      )}
-      <StatTile
-        style={stacked}
-        accent={theme.muted}
-        label="Total de horas no grid"
-        value={summary ? formatHours(summary.gridTotalHours) : list.isLoading ? '…' : '—'}
-        hint="Soma dos chamados listados, todas as páginas"
-      />
+        ) : (
+          <>
+            <StatTile
+              flat
+              style={stacked}
+              accent={theme.chartMagnitude}
+              label="Total de horas do período"
+              icon="clock"
+              value={summary ? formatHours(summary.periodTotalHours) : list.isLoading ? '…' : '—'}
+              hint="Chamados criados no mês"
+            />
+            <StatTile
+              flat
+              style={stacked}
+              accent={statusChartColor('em_andamento', isDark)}
+              label="Atividades do período em chamados de outros meses"
+              icon="clock-rotate-left"
+              value={monthlyValue(monthlySummary.data?.externalTicketActivityHours)}
+              hint={monthlyLoading ? 'Carregando…' : 'Somente lançamento no mês'}
+            />
+            <StatTile
+              flat
+              style={stacked}
+              accent={theme.chartSecondary}
+              label="Total de horas do mês"
+              icon="calendar-days"
+              value={
+                summary && monthlySummary.data
+                  ? formatHours(
+                      summary.periodTotalHours + monthlySummary.data.externalTicketActivityHours
+                    )
+                  : list.isLoading || monthlyLoading
+                    ? '…'
+                    : '—'
+              }
+              hint="Criados no mês + lançados de outros meses"
+            />
+            <StatTile
+              flat
+              style={stacked}
+              accent={statusChartColor('resolvido', isDark)}
+              label="Horas pagas no período selecionado"
+              icon="circle-check"
+              value={monthlyValue(monthlySummary.data?.paidHoursInMonth)}
+            />
+          </>
+        )}
+        <StatTile
+          flat
+          style={stacked}
+          accent={theme.muted}
+          label="Total de horas no grid"
+          icon="list-check"
+          value={summary ? formatHours(summary.gridTotalHours) : list.isLoading ? '…' : '—'}
+          hint="Soma dos chamados listados, todas as páginas"
+        />
+      </View>
     </View>
   )
 
@@ -434,7 +461,9 @@ const styles = StyleSheet.create({
   // O mesmo recuo do cabeçalho da tela (`headerOutside` do AppShell), senão a
   // lista começa 4px à esquerda do título.
   listContent: { padding: 20, paddingBottom: 32 },
-  header: { gap: 12, marginBottom: 12 },
+  // Mais ar antes da lista que entre filtros e totais: filtros + totais são um
+  // bloco só (o recorte e o que ele soma); os cartões de chamado, outro.
+  header: { gap: 12, marginBottom: 24 },
   filterActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -447,9 +476,11 @@ const styles = StyleSheet.create({
   // No celular os botões dividem a linha em vez de encolherem até o rótulo
   // quebrar; abaixo de 300px de cartão eles empilham sozinhos pelo `minWidth`.
   actionCell: { flexGrow: 1, flexBasis: 150, minWidth: 0 },
-  summaryRow: { gap: 10 },
-  summaryRowWide: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  stackedTile: { flexBasis: 'auto' },
+  summaryBand: { borderWidth: 1, borderRadius: Radius.xl, overflow: 'hidden' },
+  summaryRowWide: { flexDirection: 'row', flexWrap: 'wrap', marginLeft: -1 },
+  summaryRowStacked: { marginTop: -1 },
+  bandTile: { borderLeftWidth: 1 },
+  bandTileStacked: { flexBasis: 'auto', borderTopWidth: 1 },
   // Cada campo (`Input`/`Select`) traz `marginBottom: 16` próprio. No último
   // isso vira vão morto entre o campo e a borda do cartão; a margem negativa
   // cancela só esse último.
